@@ -18,7 +18,7 @@ public class GameRunner implements CommandLineRunner {
     private final SessionService sessionService;
     private final KeyboardInputService keyboardInputService;
 
-    private final String SUCCESS_RESULT = "40";
+    private static final String SUCCESS_RESULT = "40";
 
     @Override
     public void run(String... args) throws Exception {
@@ -29,15 +29,15 @@ public class GameRunner implements CommandLineRunner {
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .flatMap(sample -> sessionService.getResult(id, sample))
                                 .takeUntil(SUCCESS_RESULT::equals)
-                                .doOnComplete(() -> System.out.println("You have guessed! Congratulations!"))
+                                .doOnSubscribe(s -> System.out.println("Please enter samples: "))
+                                .doOnComplete(() -> System.out.println("Game finished"))
                                 .concatWith(sessionService.destroySession(id)
                                         .then(Mono.empty())
                                 )
                 )
-                .doFirst(() -> System.out.println("Please enter samples: "))
                 .doFinally(signalType -> countDownLatch.countDown())
-                .subscribe(r -> System.out.println("Result: " + r)
-                        , e -> log.warn("Error:", e)
+                .subscribe(r -> System.out.println("Result: " + r),
+                        e -> log.warn("Error:", e)
                 );
         countDownLatch.await();
     }
