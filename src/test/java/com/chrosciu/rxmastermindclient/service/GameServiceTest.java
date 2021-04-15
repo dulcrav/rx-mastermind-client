@@ -27,9 +27,9 @@ public class GameServiceTest {
     private GameService gameService;
 
     @Test
-    public void shouldGenerateResultsFromSessionAndKeyboradInput() {
+    public void shouldGenerateResultsFromSessionAndKeyboardInput() {
         //given
-        String someSessionId = "baadf00d";
+        long someSessionId = 3;
         String[] samples = new String[]{"123", "456"};
         when(sessionService.getSessionId()).thenReturn(Mono.just(someSessionId));
         when(sessionService.destroySession(someSessionId)).thenReturn(Mono.empty());
@@ -47,9 +47,9 @@ public class GameServiceTest {
     }
 
     @Test
-    public void shouldGenerateResultsFromSessionAndKeyboradInputUsingTestPublisher() {
+    public void shouldGenerateResultsFromSessionAndKeyboardInputUsingTestPublisher() {
         //given
-        String someSessionId = "baadf00d";
+        long someSessionId = 3;
         String[] samples = new String[]{"123", "456"};
         when(sessionService.getSessionId()).thenReturn(Mono.just(someSessionId));
         when(sessionService.destroySession(someSessionId)).thenReturn(Mono.empty());

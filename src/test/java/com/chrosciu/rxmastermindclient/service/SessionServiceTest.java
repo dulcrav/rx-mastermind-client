@@ -28,15 +28,15 @@ public class SessionServiceTest {
     @Test
     public void shouldGetSessionId() {
         //given
-        String someSessionId = "baadf00d";
+        long someSessionId = 3;
         wireMockServer.stubFor(post(urlEqualTo("/session"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "text/plain")
-                        .withBody(someSessionId)));
+                        .withBody(String.valueOf(someSessionId))));
 
         //when
-        Mono<String> sessionId = sessionService.getSessionId();
+        Mono<Long> sessionId = sessionService.getSessionId();
 
         //then
         StepVerifier.create(sessionId)

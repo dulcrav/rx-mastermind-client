@@ -10,14 +10,14 @@ import reactor.core.publisher.Mono;
 public class SessionService {
     private final WebClient webClient;
 
-    public Mono<String> getSessionId() {
+    public Mono<Long> getSessionId() {
         return webClient.post()
                 .uri("/session")
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(Long.class);
     }
 
-    public Mono<String> getResult(String sessionId, String sample) {
+    public Mono<String> getResult(long sessionId, String sample) {
         return webClient.put()
                 .uri("/session/{sessionId}/{sample}", sessionId, sample)
                 .retrieve()
@@ -25,7 +25,7 @@ public class SessionService {
                 .onErrorReturn("Bad input");
     }
 
-    public Mono<Void> destroySession(String sessionId) {
+    public Mono<Void> destroySession(long sessionId) {
         return webClient.delete()
                 .uri("/session/{sessionId}", sessionId)
                 .retrieve()
