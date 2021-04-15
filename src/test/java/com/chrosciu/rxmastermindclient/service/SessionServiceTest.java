@@ -8,7 +8,9 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
@@ -41,6 +43,61 @@ public class SessionServiceTest {
         //then
         StepVerifier.create(sessionId)
                 .expectNext(someSessionId)
+                .verifyComplete();
+    }
+
+    @Test
+    public void shouldReturnGuessResultForGivenSampleAndSessionWithGivenId() {
+        //given
+        long someSessionId = 3;
+        String someSample = "1234";
+        String someGuess = "23";
+        wireMockServer.stubFor(put(urlEqualTo("/session/3/1234"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(someGuess)));
+
+        //when
+        Mono<String> guess = sessionService.getResult(someSessionId, someSample);
+
+        //then
+        StepVerifier.create(guess)
+                .expectNext(someGuess)
+                .verifyComplete();
+    }
+
+    @Test
+    public void shouldReturnErrorMessageIfGuessEndpointReturnsError() {
+        //given
+        long someSessionId = 3;
+        String someSample = "1234";
+        wireMockServer.stubFor(put(urlEqualTo("/session/3/1234"))
+                .willReturn(aResponse()
+                        .withStatus(400)));
+
+        //when
+        Mono<String> guess = sessionService.getResult(someSessionId, someSample);
+
+        //then
+        StepVerifier.create(guess)
+                .expectNext("Bad input")
+                .verifyComplete();
+    }
+
+    @Test
+    public void shouldDestroySessionWithGivenId() {
+        //given
+        long someSessionId = 3;
+        wireMockServer.stubFor(delete(urlEqualTo("/session/3"))
+                .willReturn(aResponse()
+                        .withStatus(200)));
+
+        //when
+        Mono<Void> result = sessionService.destroySession(someSessionId);
+
+        //then
+        StepVerifier.create(result)
                 .verifyComplete();
     }
 }
