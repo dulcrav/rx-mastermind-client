@@ -32,7 +32,7 @@ public class SessionServiceTest {
         wireMockServer.stubFor(post(urlEqualTo("/session"))
                 .willReturn(aResponse()
                         .withStatus(200)
-                        .withHeader("Content-Type", "text/plain")
+                        .withHeader("Content-Type", "application/json")
                         .withBody(String.valueOf(someSessionId))));
 
         //when
