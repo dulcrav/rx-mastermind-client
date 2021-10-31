@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 //@MockitoSettings(strictness = Strictness.LENIENT)
 public class GameServiceTest {
     @Mock
-    private KeyboardInputService keyboardInputService;
+    private InputService inputService;
     @Mock
     private SessionService sessionService;
     @InjectMocks
@@ -30,12 +30,12 @@ public class GameServiceTest {
     public void shouldGenerateResultsFromSessionAndKeyboardInput() {
         //given
         long someSessionId = 3;
-        String[] samples = new String[]{"123", "456"};
+        String[] lines = new String[]{"123", "456"};
         when(sessionService.getSessionId()).thenReturn(Mono.just(someSessionId));
         when(sessionService.destroySession(someSessionId)).thenReturn(Mono.empty());
-        when(keyboardInputService.getSamples()).thenReturn(Flux.just(samples));
-        when(sessionService.getResult(someSessionId, samples[0])).thenReturn(Mono.just("20"));
-        when(sessionService.getResult(someSessionId, samples[1])).thenReturn(Mono.just("11"));
+        when(inputService.getLines()).thenReturn(Flux.just(lines));
+        when(sessionService.getResult(someSessionId, lines[0])).thenReturn(Mono.just("20"));
+        when(sessionService.getResult(someSessionId, lines[1])).thenReturn(Mono.just("11"));
 
         //when
         Flux<String> results = gameService.getResults();
@@ -50,16 +50,16 @@ public class GameServiceTest {
     public void shouldGenerateResultsFromSessionAndKeyboardInputUsingTestPublisher() {
         //given
         long someSessionId = 3;
-        String[] samples = new String[]{"123", "456"};
+        String[] lines = new String[]{"123", "456"};
         when(sessionService.getSessionId()).thenReturn(Mono.just(someSessionId));
         when(sessionService.destroySession(someSessionId)).thenReturn(Mono.empty());
         TestPublisher<String> publisher = TestPublisher.createCold();
-        when(keyboardInputService.getSamples()).thenReturn(publisher.flux());
-        when(sessionService.getResult(someSessionId, samples[0])).thenReturn(Mono.just("20"));
+        when(inputService.getLines()).thenReturn(publisher.flux());
+        when(sessionService.getResult(someSessionId, lines[0])).thenReturn(Mono.just("20"));
 
         //when
         Flux<String> results = gameService.getResults();
-        publisher.next(samples[0]);
+        publisher.next(lines[0]);
 
         //then
         Mockito.verify(sessionService, Mockito.times(0)).destroySession(someSessionId);

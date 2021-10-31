@@ -10,14 +10,14 @@ import reactor.core.scheduler.Schedulers;
 @RequiredArgsConstructor
 public class GameService {
     private final SessionService sessionService;
-    private final KeyboardInputService keyboardInputService;
+    private final InputService inputService;
 
     private static final String SUCCESS_RESULT = "40";
 
     public Flux<String> getResults() {
         return sessionService.getSessionId()
                 .flatMapMany(
-                        id -> keyboardInputService.getSamples()
+                        id -> inputService.getLines()
                                 .subscribeOn(Schedulers.boundedElastic())
                                 .flatMap(sample -> sessionService.getResult(id, sample))
                                 .takeUntil(SUCCESS_RESULT::equals)
